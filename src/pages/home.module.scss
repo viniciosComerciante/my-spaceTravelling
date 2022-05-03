@@ -1,15 +1,58 @@
-.header{
+.logoContainer{
     max-width: 1120px;
     margin: 0 auto;
-    padding: 0 2rem;
-    height: 105px;
-    display: flex;
-    align-items: center;
+    padding: 4.971rem 2rem 4.0512rem 2rem;
 }
 
-.contentContainer{
-    max-width: 1120px;
-    margin: 0 auto;
-    padding: 0 2rem;
-    height: calc(100vh - 125px);
+
+
+
+
+.articleInfos{
+
+    display: block;
+
+    &+.articleInfos{
+        margin-top: 3rem;
+    }
+    
+    h1{
+        font-size: 1.75rem;
+        font-weight: bold;
+        color: var(--title);
+        margin-bottom: 0.5rem;    
+        
+    }
+    p{
+        font-size: 1.125rem;
+        margin-bottom: 1.5rem;
+    }
+
+    span{
+        color: var(--info);
+        font-size: 0.875rem;
+    }
+    svg{
+        width: 20px;
+        height: 20px;
+        margin-right: 0.5rem;
+    }
+
+    .userIcon{
+        margin-left: 1.5rem;
+    }
+
 }
+
+.loadMore{
+    border: none;
+    background: transparent;
+    color: var(--highlight);
+    font-weight: 600;
+    font-size: 1.125rem;
+    margin-top: 4rem;
+    margin-bottom: 5rem ;
+}
+
+
+

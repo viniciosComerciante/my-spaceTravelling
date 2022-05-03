@@ -1,6 +1,9 @@
 import { GetStaticProps } from 'next';
 import { ReactNode } from 'react';
-
+import { FiCalendar, FiUser } from 'react-icons/fi';
+import { format } from 'date-fns';
+import ptBR from 'date-fns/locale/pt-BR';
+import Link from 'next/link';
 import { getPrismicClient } from '../services/prismic';
 
 import commonStyles from '../styles/common.module.scss';
@@ -26,15 +29,43 @@ interface HomeProps {
 }
 
 export default function Home({ postsPagination }: HomeProps): ReactNode {
+  const { results, next_page } = postsPagination;
+
   return (
     <>
-      <div className={styles.contentContainer}>
-        <article>
-          <h1>Como utilizar webhooks</h1>
-          <p>pensando em sincronização ao invés de ciclos de vida.</p>
-          <span>15 Mar 2022</span>
-          <span>Vinícios Oliveira</span>
-        </article>
+      <div className={styles.logoContainer}>
+        <img src="/images/Logo.svg" alt="logo" />
+      </div>
+      <div className={commonStyles.contentContainer}>
+        {results &&
+          results.map(result => (
+            <Link href={`/post/${result.uid}`}>
+              <a className={styles.articleInfos} key={result.uid} href="/post/">
+                <h1>{result.data.title}</h1>
+                <p>{result.data.subtitle}</p>
+                <span>
+                  <FiCalendar className={styles.calendarIcon} />
+                  {format(
+                    new Date(result.first_publication_date),
+                    'dd MMM yyyy',
+                    {
+                      locale: ptBR,
+                    }
+                  )}
+                </span>
+                <span>
+                  <FiUser className={styles.userIcon} />
+                  {result.data.author}
+                </span>
+              </a>
+            </Link>
+          ))}
+
+        {next_page && (
+          <button type="button" className={styles.loadMore}>
+            Carregar mais posts
+          </button>
+        )}
       </div>
     </>
   );
@@ -42,14 +73,18 @@ export default function Home({ postsPagination }: HomeProps): ReactNode {
 
 export const getStaticProps: GetStaticProps = async () => {
   const prismic = getPrismicClient({});
-  const postsResponse = await prismic.getByType('posts');
+  const postsResponse = await prismic.getByType('posts', { pageSize: 5 });
   const { results, next_page } = postsResponse;
+
+  // console.log(results);
 
   return {
     props: {
-      next_page,
-      results,
+      postsPagination: {
+        next_page,
+        results,
+      },
     },
-    revalidate: 24 * 60 * 60,
+    revalidate: 1,
   };
 };
