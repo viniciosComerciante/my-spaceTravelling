@@ -1,5 +1,5 @@
 import { GetStaticProps } from 'next';
-import { ReactNode } from 'react';
+import { ReactNode, useState } from 'react';
 import { FiCalendar, FiUser } from 'react-icons/fi';
 import { format } from 'date-fns';
 import ptBR from 'date-fns/locale/pt-BR';
@@ -29,7 +29,18 @@ interface HomeProps {
 }
 
 export default function Home({ postsPagination }: HomeProps): ReactNode {
-  const { results, next_page } = postsPagination;
+  const [results, setResults] = useState(postsPagination.results);
+  const [next_page, setNext_page] = useState(postsPagination.next_page);
+
+  async function getMorePosts(): Promise<void> {
+    if (!next_page) return;
+    const posts = await fetch(next_page);
+    const postsJson = await posts.json();
+    const newResults = postsJson.results;
+
+    setResults([...results, ...newResults]);
+    setNext_page(postsJson.next_page);
+  }
 
   return (
     <>
@@ -39,8 +50,8 @@ export default function Home({ postsPagination }: HomeProps): ReactNode {
       <div className={commonStyles.contentContainer}>
         {results &&
           results.map(result => (
-            <Link href={`/post/${result.uid}`}>
-              <a className={styles.articleInfos} key={result.uid} href="/post/">
+            <Link href={`/post/${result.uid}`} key={result.uid}>
+              <a className={styles.articleInfos} href="/post/">
                 <h1>{result.data.title}</h1>
                 <p>{result.data.subtitle}</p>
                 <span>
@@ -62,7 +73,11 @@ export default function Home({ postsPagination }: HomeProps): ReactNode {
           ))}
 
         {next_page && (
-          <button type="button" className={styles.loadMore}>
+          <button
+            type="button"
+            onClick={getMorePosts}
+            className={styles.loadMore}
+          >
             Carregar mais posts
           </button>
         )}
@@ -76,8 +91,6 @@ export const getStaticProps: GetStaticProps = async () => {
   const postsResponse = await prismic.getByType('posts', { pageSize: 5 });
   const { results, next_page } = postsResponse;
 
-  // console.log(results);
-
   return {
     props: {
       postsPagination: {
@@ -85,6 +98,6 @@ export const getStaticProps: GetStaticProps = async () => {
         results,
       },
     },
-    revalidate: 1,
+    revalidate: 60 * 60 * 24,
   };
 };
