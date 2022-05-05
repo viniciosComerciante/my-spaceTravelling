@@ -8,6 +8,7 @@ import { getPrismicClient } from '../services/prismic';
 
 import commonStyles from '../styles/common.module.scss';
 import styles from './home.module.scss';
+import { Footer } from '../components/Footer';
 
 interface Post {
   uid?: string;
@@ -81,6 +82,7 @@ export default function Home({ postsPagination }: HomeProps): ReactNode {
             Carregar mais posts
           </button>
         )}
+        <Footer />
       </div>
     </>
   );
